@@ -21,9 +21,9 @@ class ProductAdapter extends TypeAdapter<Product> {
       name: fields[1] as String,
       description: fields[2] as String,
       price: fields[3] as double,
-      stock: fields[4] as int,
+      image: fields[4] as String,
       category: fields[5] as String,
-      image: fields[6] as String,
+      rating: (fields[6] as Map).cast<String, dynamic>(),
     );
   }
 
@@ -40,11 +40,11 @@ class ProductAdapter extends TypeAdapter<Product> {
       ..writeByte(3)
       ..write(obj.price)
       ..writeByte(4)
-      ..write(obj.stock)
+      ..write(obj.image)
       ..writeByte(5)
       ..write(obj.category)
       ..writeByte(6)
-      ..write(obj.image);
+      ..write(obj.rating);
   }
 
   @override

@@ -15,6 +15,7 @@ class Orders {
   final String status;
   @HiveField(5)
   final String address;
+  
 
   Orders({
     required this.id,

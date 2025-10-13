@@ -3,6 +3,7 @@
         android:label="lavaloon_ecommerce_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.stripe.sdk.PUBLISHABLE_KEY" android:value="pk_test_..."/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
