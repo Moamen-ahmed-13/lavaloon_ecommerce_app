@@ -148,6 +148,7 @@ class CartScreen extends StatelessWidget {
                         print('Total calc error: ${snapshot.error}'); // Debug
                       }
                       return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Total: \$${total.toStringAsFixed(2)}',
