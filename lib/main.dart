@@ -40,8 +40,7 @@ void main() async {
   final wishlistBox = await Hive.openBox('wishlist');
   wishlistBox.clear();
 
-  // Stripe.publishableKey =
-  //     'pk_test_51SHAgrPM4tmvpDxuSypEdG3uikhgY3rwGd3i1VJmVYw2E4nfvRkgtPjxBMTiuGBOsAZydHj0Uh8DEAenf6zOAJxk00GFL78Rsz';
+  Stripe.publishableKey = '';
   runApp(const MyApp());
 }
 
