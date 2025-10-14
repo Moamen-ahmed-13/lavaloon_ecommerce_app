@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+// import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:lavaloon_ecommerce_app/features/auth/data/repositories/product_repository.dart';
 import 'package:lavaloon_ecommerce_app/features/auth/domain/entities/address.dart';
@@ -40,7 +40,7 @@ void main() async {
   final wishlistBox = await Hive.openBox('wishlist');
   wishlistBox.clear();
 
-  Stripe.publishableKey = '';
+  // Stripe.publishableKey = '';
   runApp(const MyApp());
 }
 

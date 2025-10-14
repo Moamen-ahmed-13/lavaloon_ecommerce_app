@@ -620,7 +620,7 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+// import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:lavaloon_ecommerce_app/features/auth/presentation/cubit/auth/auth_cubit.dart';
 import 'package:lavaloon_ecommerce_app/features/auth/presentation/cubit/cart/cart_cubit.dart';
 import 'package:lavaloon_ecommerce_app/features/auth/presentation/cubit/checkout/checkout_cubit.dart';
@@ -659,7 +659,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   // Payment
   String? _paymentMethod; // 'card' or 'cod'
-  CardFieldInputDetails? _card; // stripe card data
+  // CardFieldInputDetails? _card; // stripe card data
 
   // Loading / error
   bool _loadingAddresses = true;
@@ -767,7 +767,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
 
       // if card payment, ensure card details are available
-      if (_paymentMethod == 'card' && (_card == null || !_card!.complete)) {
+      if (_paymentMethod == 'card' 
+      // && (_card == null || !_card!.complete)
+      ) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter valid card details')),
         );
@@ -1051,16 +1053,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         if (_paymentMethod == 'card') ...[
           const SizedBox(height: 12),
           // stripe CardField
-          CardField(
-            onCardChanged: (details) {
-              setState(() {
-                _card = details;
-              });
-            },
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-            ),
-          ),
+          // CardField(
+          //   onCardChanged: (details) {
+          //     setState(() {
+          //       _card = details;
+          //     });
+          //   },
+          //   decoration: const InputDecoration(
+          //     border: OutlineInputBorder(),
+          //   ),
+          // ),
           const SizedBox(height: 12),
           FutureBuilder<double>(
             future: _computeTotal(),
