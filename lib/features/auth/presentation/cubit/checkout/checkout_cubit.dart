@@ -57,7 +57,10 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
   Future<Map<String, dynamic>> _createPaymentIntent(double total) async {
     // Mock – Replace with real backend API call (e.g., http.post('/create-intent', body: {'amount': (total * 100).toInt()}))
-    return {"client_secret": "sk_test_51SHAgrPM4tmvpDxuCYKnSYlxbfpnkdIDUo5zUVxokZpRcn4OXpsjMyWgNQkg50bCVHpv9eQjvQLsGerPjl6kX2q800Qd5D08YL"};
+    return {
+      'client_secret': 'pi_1234567890',
+      'amount': total,
+    };
   }
 
   Future<void> confirmOrder(Addresses address, String paymentMethod) async {
