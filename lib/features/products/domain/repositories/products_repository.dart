@@ -4,6 +4,7 @@ import '../entities/product_entity.dart';
 
 abstract class ProductsRepository {
   Future<Either<Failure, List<ProductEntity>>> getAllProducts();
+  Future<Either<Failure, int>> getTotalProductsCount();
   
   Future<Either<Failure, List<ProductEntity>>> getProductsPaginated({
     required int page,
@@ -21,4 +22,6 @@ abstract class ProductsRepository {
   Future<Either<Failure, ProductEntity>> getProductById(int id);
   Future<Either<Failure, List<String>>> getCategories();
   Future<Either<Failure, List<ProductEntity>>> searchProducts(String query);
+  
+  void clearCache();
 }

@@ -20,6 +20,16 @@ class ProductsRepositoryImpl implements ProductsRepository {
   }
   
   @override
+  Future<Either<Failure, int>> getTotalProductsCount() async {
+    try {
+      final count = await remoteDataSource.getTotalProductsCount();
+      return Right(count);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+  
+  @override
   Future<Either<Failure, List<ProductEntity>>> getProductsPaginated({
     required int page,
     required int limit,
@@ -95,5 +105,9 @@ class ProductsRepositoryImpl implements ProductsRepository {
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
+  }
+  
+  void clearCache() {
+    remoteDataSource.clearCache();
   }
 }

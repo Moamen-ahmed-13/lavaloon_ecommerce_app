@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lavaloon_ecommerce_app/core/widgets/custom_button.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/shimmer_loading.dart';
 import 'package:lavaloon_ecommerce_app/features/cart/presentation/widgets/summary_row.dart';
 import '../cubit/cart_cubit.dart';
 
@@ -12,6 +13,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Shopping Cart'),
         actions: [
           BlocBuilder<CartCubit, CartState>(
@@ -80,6 +82,13 @@ class CartScreen extends StatelessWidget {
             );
           }
 
+if (state.isCartLoading) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 3,
+        itemBuilder: (context, index) => const ListItemShimmer(),
+      );
+    }
           return Column(
             children: [
               // Cart Items List

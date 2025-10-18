@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/custom_button.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/shimmer_loading.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/presentation/widgets/order_card.dart';
 import '../cubit/orders_cubit.dart';
 
@@ -21,17 +23,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/products');
-          },
-        ),
+        // leading: BackButton(
+        //   onPressed: () {
+        //     Navigator.pushNamed(context, '/products');
+        //   },
+        // ),
+        automaticallyImplyLeading: false,
         title: const Text('My Orders'),
       ),
       body: BlocBuilder<OrdersCubit, OrdersState>(
         builder: (context, state) {
           if (state is OrdersLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: 5,
+              itemBuilder: (context, index) => const OrderCardShimmer(),
+            );
           }
 
           if (state is OrdersError) {
@@ -74,11 +81,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
+                    CustomButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/products');
                       },
-                      child: const Text('Start Shopping'),
+                      text: 'Start Shopping',
                     ),
                   ],
                 ),

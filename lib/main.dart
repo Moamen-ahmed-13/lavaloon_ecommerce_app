@@ -16,6 +16,7 @@ import 'package:lavaloon_ecommerce_app/features/cart/presentation/cubit/cart_cub
 import 'package:lavaloon_ecommerce_app/features/cart/presentation/pages/cart_screen.dart';
 import 'package:lavaloon_ecommerce_app/features/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:lavaloon_ecommerce_app/features/checkout/presentation/pages/checkout_screen.dart';
+import 'package:lavaloon_ecommerce_app/features/home/presentation/screens/main_screen.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/data/datasources/orders_local_datasource.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/presentation/pages/order_details_screen.dart';
@@ -89,7 +90,7 @@ class MyApp extends StatelessWidget {
         title: 'E-Commerce App',
         theme: ThemeData(
           useMaterial3: true,
-          colorSchemeSeed: Colors.blue,
+          colorSchemeSeed: Color(0xFF4CAF50),
         ),
         initialRoute: '/login',
         onGenerateRoute: (settings) {
@@ -101,21 +102,26 @@ class MyApp extends StatelessWidget {
             case '/forgot-password':
               return MaterialPageRoute(
                   builder: (_) => const ForgotPasswordScreen());
+            case '/home':
             case '/products':
-              return MaterialPageRoute(builder: (_) => const ProductsScreen());
+              return MaterialPageRoute(
+                  builder: (_) => const MainScreen(initialIndex: 0));
+            case '/cart':
+              return MaterialPageRoute(
+                  builder: (_) => const MainScreen(initialIndex: 1));
+            case '/wishlist':
+              return MaterialPageRoute(
+                  builder: (_) => const MainScreen(initialIndex: 2));
+            case '/orders':
+              return MaterialPageRoute(
+                  builder: (_) => const MainScreen(initialIndex: 3));
             case '/product-details':
               final productId = settings.arguments as int;
               return MaterialPageRoute(
                 builder: (_) => ProductDetailsScreen(productId: productId),
               );
-            case '/cart':
-              return MaterialPageRoute(builder: (_) => const CartScreen());
-            case '/wishlist': // ← Add this
-              return MaterialPageRoute(builder: (_) => const WishlistScreen());
             case '/checkout':
               return MaterialPageRoute(builder: (_) => const CheckoutScreen());
-            case '/orders':
-              return MaterialPageRoute(builder: (_) => const OrdersScreen());
             case '/order-details':
               final orderId = settings.arguments as String;
               return MaterialPageRoute(

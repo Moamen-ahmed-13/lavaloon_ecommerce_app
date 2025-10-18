@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/shimmer_loading.dart';
 import 'package:lavaloon_ecommerce_app/features/products/presentation/widgets/category_chip.dart';
 import 'package:lavaloon_ecommerce_app/features/products/presentation/widgets/product_card.dart';
 import '../cubit/products_cubit.dart';
 import '../cubit/products_state.dart';
+
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({Key? key}) : super(key: key);
 
@@ -15,6 +17,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _showScrollToTop = false;
+
   @override
   void initState() {
     super.initState();
@@ -61,21 +64,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _refreshProducts() async {
-    // Show loading message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Refreshing products...'),
-        duration: Duration(milliseconds: 800),
-      ),
-    );
-
-    // Refresh products
     await context.read<ProductsCubit>().loadProducts(refresh: true);
 
-    // Scroll to top
     if (_scrollController.hasClients) {
       _scrollToTop();
     }
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -87,7 +81,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ],
           ),
           duration: Duration(seconds: 2),
-          backgroundColor: Color(0xFF4CAF50), // Green color
+          backgroundColor: Color(0xFF4CAF50),
         ),
       );
     }
@@ -104,42 +98,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh products',
-            onPressed: () async {
-              await context.read<ProductsCubit>().loadProducts(refresh: true);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Products refreshed!'),
-                    duration: Duration(seconds: 1),
-                    backgroundColor: Color(0xFF4CAF50),
-                  ),
-                );
-              }
-            },
-          ),
-          // Wishlist Icon (without badge for now)
-          IconButton(
-            icon: const Icon(Icons.favorite_border),
-            tooltip: 'Wishlist',
-            onPressed: () {
-              Navigator.pushNamed(context, '/wishlist');
-            },
-          ),
-          // Cart Icon
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            tooltip: 'Cart',
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart');
-            },
-          ),
-          // Cart Icon
-          IconButton(
-            icon: const Icon(Icons.list),
-            tooltip: 'Orders',
-            onPressed: () {
-              Navigator.pushNamed(context, '/orders');
-            },
+            onPressed: _refreshProducts,
           ),
           // Logout Icon
           IconButton(
@@ -240,53 +199,163 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
           const SizedBox(height: 8),
 
+          // Looping Indicator Banner
+          BlocBuilder<ProductsCubit, ProductsState>(
+            builder: (context, state) {
+              if (state is ProductsLoaded && state.isLooping) {
+                return Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  color: const Color(0xFF4CAF50).withOpacity(0.1),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.refresh,
+                        size: 16,
+                        color: Color(0xFF4CAF50),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Showing products again',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+
           // Products Grid with Infinite Scroll
           Expanded(
             child: BlocBuilder<ProductsCubit, ProductsState>(
               builder: (context, state) {
                 if (state is ProductsLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const ProductGridShimmer();
                 }
 
                 if (state is ProductsError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline,
-                            size: 64, color: Colors.red),
-                        const SizedBox(height: 16),
-                        Text(state.message),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context
-                                .read<ProductsCubit>()
-                                .loadProducts(refresh: true);
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (state is ProductsLoaded) {
-                  if (state.products.isEmpty) {
-                    return const Center(
-                      child: Text('No products found'),
-                    );
-                  }
-
                   return RefreshIndicator(
                     onRefresh: () async {
                       await context
                           .read<ProductsCubit>()
                           .loadProducts(refresh: true);
                     },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  size: 64, color: Colors.red),
+                              const SizedBox(height: 16),
+                              Text(state.message),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  context
+                                      .read<ProductsCubit>()
+                                      .loadProducts(refresh: true);
+                                },
+                                child: const Text('Retry'),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Or pull down to refresh',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (state is ProductsLoaded) {
+                  if (state.products.isEmpty) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        await context
+                            .read<ProductsCubit>()
+                            .loadProducts(refresh: true);
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.shopping_bag_outlined,
+                                  size: 100,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'No products found',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Pull down to refresh',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Refreshing products...'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+
+                      await context
+                          .read<ProductsCubit>()
+                          .loadProducts(refresh: true);
+
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Products refreshed!'),
+                            duration: Duration(seconds: 1),
+                            backgroundColor: Color(0xFF4CAF50),
+                          ),
+                        );
+                      }
+                    },
+                    color: Colors.white,
+                    backgroundColor: const Color(0xFF4CAF50),
                     child: GridView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.all(16),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
@@ -294,17 +363,44 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
-                      itemCount: state.hasReachedMax
-                          ? state.products.length
-                          : state.products.length +
-                              1, // +1 for loading indicator
+                      itemCount: state.products.length +
+                          1, // Always show loading indicator for infinite scroll
                       itemBuilder: (context, index) {
                         // Show loading indicator at the end
                         if (index >= state.products.length) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: CircularProgressIndicator(),
+                          return Container(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Color(0xFF4CAF50)),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  state.isLooping
+                                      ? 'Loading more...'
+                                      : 'Loading...',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                if (state.isLooping)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      '🔄 Looping back',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey[500],
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           );
                         }
@@ -321,6 +417,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ),
         ],
       ),
+      floatingActionButton: _showScrollToTop
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              tooltip: 'Scroll to top',
+              backgroundColor: const Color(0xFF4CAF50),
+              child: const Icon(Icons.arrow_upward, color: Colors.white),
+            )
+          : null,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/shimmer_loading.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/domain/entities/order_entity.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/presentation/widgets/info_row.dart';
 import 'package:lavaloon_ecommerce_app/features/orders/presentation/widgets/price_row.dart';
@@ -47,11 +48,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Details'),
+        leading: BackButton(onPressed: () {
+          Navigator.pushReplacementNamed(context, '/orders');
+        }),
       ),
       body: BlocBuilder<OrdersCubit, OrdersState>(
         builder: (context, state) {
           if (state is OrdersLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: 5,
+              itemBuilder: (context, index) => const OrderCardShimmer(),
+            );
           }
 
           if (state is OrdersError) {
@@ -338,4 +346,3 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 }
-

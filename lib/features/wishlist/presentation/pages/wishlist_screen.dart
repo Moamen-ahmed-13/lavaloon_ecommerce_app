@@ -24,6 +24,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Wishlist'),
+        automaticallyImplyLeading: false,
         actions: [
           BlocBuilder<WishlistCubit, WishlistState>(
             builder: (context, state) {

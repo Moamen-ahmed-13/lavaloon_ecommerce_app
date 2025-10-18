@@ -128,8 +128,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 // Show spinner during processing
                                 width: 18,
                                 height: 18,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white))
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                ))
                             : const Text(
                                 'Reset Password',
                                 style: TextStyle(fontSize: 16),

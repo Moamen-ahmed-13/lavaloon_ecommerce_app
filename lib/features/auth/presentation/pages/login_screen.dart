@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/shimmer_loading.dart';
 import '../cubit/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -34,13 +35,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 SnackBar(content: Text(state.message)),
               );
             } else if (state is Authenticated) {
-              Navigator.pushReplacementNamed(context, '/products');
+              Navigator.pushReplacementNamed(context, '/home');
             }
           },
           builder: (context, state) {
             if (state is AuthLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              return const ProductGridShimmer();}
             
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),

@@ -17,16 +17,18 @@ class ProductsLoaded extends ProductsState {
   final List<String> categories;
   final String? selectedCategory;
   final int currentPage;
-  final bool hasReachedMax;
   final bool isLoadingMore;
+  final int totalProductsCount; // Total count of all products available
+  final bool isLooping; // Indicates if we're in a loop cycle
   
   const ProductsLoaded({
     required this.products,
     required this.categories,
     this.selectedCategory,
     this.currentPage = 1,
-    this.hasReachedMax = false,
     this.isLoadingMore = false,
+    this.totalProductsCount = 0,
+    this.isLooping = false,
   });
   
   @override
@@ -35,8 +37,9 @@ class ProductsLoaded extends ProductsState {
         categories,
         selectedCategory,
         currentPage,
-        hasReachedMax,
         isLoadingMore,
+        totalProductsCount,
+        isLooping,
       ];
   
   ProductsLoaded copyWith({
@@ -44,8 +47,9 @@ class ProductsLoaded extends ProductsState {
     List<String>? categories,
     String? selectedCategory,
     int? currentPage,
-    bool? hasReachedMax,
     bool? isLoadingMore,
+    int? totalProductsCount,
+    bool? isLooping,
     bool clearCategory = false,
   }) {
     return ProductsLoaded(
@@ -53,8 +57,9 @@ class ProductsLoaded extends ProductsState {
       categories: categories ?? this.categories,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       currentPage: currentPage ?? this.currentPage,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      totalProductsCount: totalProductsCount ?? this.totalProductsCount,
+      isLooping: isLooping ?? this.isLooping,
     );
   }
 }

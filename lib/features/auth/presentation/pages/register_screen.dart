@@ -214,8 +214,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              ))
                           : const Text(
                               'Register',
                               style: TextStyle(fontSize: 16),

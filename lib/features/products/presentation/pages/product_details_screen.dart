@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:lavaloon_ecommerce_app/core/widgets/shimmer_loading.dart';
 import 'package:lavaloon_ecommerce_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:lavaloon_ecommerce_app/features/products/presentation/cubit/products_state.dart';
 import 'package:lavaloon_ecommerce_app/features/wishlist/presentation/cubit/wishlist_cubit.dart';
@@ -46,9 +47,55 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         body: BlocBuilder<ProductsCubit, ProductsState>(
           builder: (context, state) {
             if (state is ProductDetailsLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
+  return SingleChildScrollView(
+    child: ShimmerLoading(
+      child: Column(
+        children: [
+          // Image shimmer
+          Container(
+            height: 300,
+            color: Colors.white,
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  width: 150,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  width: 100,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
             if (state is ProductsError) {
               return Center(
                 child: Column(

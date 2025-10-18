@@ -14,12 +14,13 @@ class CustomButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: MaterialButton(
-        color: Colors.blue,
+        color: Color(0xFF4CAF50),
         minWidth: double.infinity,
         elevation: 0,
         height: 45,
         shape: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5), borderSide: BorderSide.none),
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide.none),
         onPressed: onPressed,
         child: Text(
           text,

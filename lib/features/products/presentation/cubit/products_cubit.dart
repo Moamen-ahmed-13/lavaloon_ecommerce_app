@@ -13,7 +13,11 @@ class ProductsCubit extends Cubit<ProductsState> {
   Future<void> loadProducts({bool refresh = false}) async {
     if (refresh) {
       emit(ProductsLoading());
+      productsRepository.clearCache(); // Clear cache on refresh
     }
+    
+    // Get total count first
+    final countResult = await productsRepository.getTotalProductsCount();
     
     final productsResult = await productsRepository.getProductsPaginated(
       page: 1,
@@ -26,12 +30,19 @@ class ProductsCubit extends Cubit<ProductsState> {
       (products) {
         categoriesResult.fold(
           (failure) => emit(ProductsError(failure.message)),
-          (categories) => emit(ProductsLoaded(
-            products: products,
-            categories: categories,
-            currentPage: 1,
-            hasReachedMax: products.length < productsPerPage,
-          )),
+          (categories) {
+            countResult.fold(
+              (failure) => emit(ProductsError(failure.message)),
+              (totalCount) => emit(ProductsLoaded(
+                products: products,
+                categories: categories,
+                currentPage: 1,
+                isLoadingMore: false,
+                totalProductsCount: totalCount,
+                isLooping: false,
+              )),
+            );
+          },
         );
       },
     );
@@ -42,12 +53,16 @@ class ProductsCubit extends Cubit<ProductsState> {
     
     final currentState = state as ProductsLoaded;
     
-    // Don't load if already loading or reached max
-    if (currentState.isLoadingMore || currentState.hasReachedMax) return;
+    // Don't load if already loading
+    if (currentState.isLoadingMore) return;
     
     emit(currentState.copyWith(isLoadingMore: true));
     
     final nextPage = currentState.currentPage + 1;
+    
+    // Check if we're looping (going past the total count)
+    final totalLoadedSoFar = currentState.currentPage * productsPerPage;
+    final isLooping = totalLoadedSoFar >= currentState.totalProductsCount;
     
     Either result;
     
@@ -67,14 +82,15 @@ class ProductsCubit extends Cubit<ProductsState> {
     result.fold(
       (failure) => emit(ProductsError(failure.message)),
       (newProducts) {
+        // Always add products - they'll loop from the beginning if needed
         final allProducts = List<ProductEntity>.from(currentState.products)
           ..addAll(newProducts);
         
         emit(currentState.copyWith(
           products: allProducts,
           currentPage: nextPage,
-          hasReachedMax: newProducts.length < productsPerPage,
           isLoadingMore: false,
+          isLooping: isLooping,
         ));
       },
     );
@@ -87,34 +103,52 @@ class ProductsCubit extends Cubit<ProductsState> {
     emit(ProductsLoading());
     
     if (category == null || category == 'All') {
+      // Get total count for all products
+      final countResult = await productsRepository.getTotalProductsCount();
       final result = await productsRepository.getProductsPaginated(
         page: 1,
         limit: productsPerPage,
       );
+      
       result.fold(
         (failure) => emit(ProductsError(failure.message)),
-        (products) => emit(currentState.copyWith(
-          products: products,
-          selectedCategory: null,
-          currentPage: 1,
-          hasReachedMax: products.length < productsPerPage,
-          clearCategory: true,
-        )),
+        (products) {
+          countResult.fold(
+            (failure) => emit(ProductsError(failure.message)),
+            (totalCount) => emit(currentState.copyWith(
+              products: products,
+              selectedCategory: null,
+              currentPage: 1,
+              isLoadingMore: false,
+              totalProductsCount: totalCount,
+              clearCategory: true,
+            )),
+          );
+        },
       );
     } else {
+      // Get category products and count
+      final allCategoryProductsResult = await productsRepository.getProductsByCategory(category);
       final result = await productsRepository.getProductsByCategoryPaginated(
         category: category,
         page: 1,
         limit: productsPerPage,
       );
+      
       result.fold(
         (failure) => emit(ProductsError(failure.message)),
-        (products) => emit(currentState.copyWith(
-          products: products,
-          selectedCategory: category,
-          currentPage: 1,
-          hasReachedMax: products.length < productsPerPage,
-        )),
+        (products) {
+          allCategoryProductsResult.fold(
+            (failure) => emit(ProductsError(failure.message)),
+            (allCategoryProducts) => emit(currentState.copyWith(
+              products: products,
+              selectedCategory: category,
+              currentPage: 1,
+              isLoadingMore: false,
+              totalProductsCount: allCategoryProducts.length,
+            )),
+          );
+        },
       );
     }
   }
@@ -137,7 +171,8 @@ class ProductsCubit extends Cubit<ProductsState> {
       (products) => emit(currentState.copyWith(
         products: products,
         currentPage: 1,
-        hasReachedMax: true, // Search results don't support pagination
+        isLoadingMore: false,
+        totalProductsCount: products.length,
       )),
     );
   }
@@ -150,7 +185,6 @@ class ProductsCubit extends Cubit<ProductsState> {
     productResult.fold(
       (failure) => emit(ProductsError(failure.message)),
       (product) async {
-        // Get similar products from same category
         final similarResult = await productsRepository.getProductsByCategory(product.category);
         
         similarResult.fold(
@@ -159,7 +193,6 @@ class ProductsCubit extends Cubit<ProductsState> {
             similarProducts: [],
           )),
           (similarProducts) {
-            // Remove the current product from similar products
             final filtered = similarProducts.where((p) => p.id != productId).take(4).toList();
             emit(ProductDetailsLoaded(
               product: product,
